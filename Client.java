@@ -1,29 +1,20 @@
 package HonorsThesis;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Scanner;
-import static HonorsThesis.Utility.println;
-import static HonorsThesis.Parser.parseQuiz;
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.io.IOException;
 
 public class Client {
 	private static Scanner userInput = new Scanner(System.in);
 	
 	public static void main(String[] args) {
-		final Quiz quiz = parseQuiz(FileIO.fileRead(Path.of("quiz.txt")));
-		final ArrayList<String> userAnswers = getUserAnswers(quiz);
-		println(quiz.score(userAnswers));
-		for (String gradedQuestion : quiz.grade(userAnswers)) {
-			println(gradedQuestion);
+		try {
+			String quizData = Files.readString(Path.of("quiz.txt"));
+			Quiz quiz = QuizParser.parseQuiz(quizData);
+			quiz.takeQuiz(userInput);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	}
-	
-	private static ArrayList<String> getUserAnswers(Quiz quiz) {
-		final ArrayList<String> userAnswers = new ArrayList<String>();
-		for (String question : quiz.getQuestions()) {
-			println(question);
-			userAnswers.add(userInput.nextLine());
-		}
-		return userAnswers;
 	}
 }
