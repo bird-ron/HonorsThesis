@@ -1,4 +1,4 @@
-package HonorsThesis;
+package honorsThesis;
 
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -13,13 +13,14 @@ public class Quiz {
 	public void takeQuiz(Scanner userInput) {
 		for (int i = 0; i < questions.size(); i++) {
 			Question question = questions.get(i);
-			System.out.println(question.getQuestionText());
-			String response = userInput.next();
-			if (response.equalsIgnoreCase(question.getAnswerText())) System.out.println("Correct!");
+			System.out.println(question.getDescription());
+			String response = userInput.next().trim();
+			if (response.equalsIgnoreCase(question.getAnswer())) System.out.println("Correct!");
 			else {
 				System.out.println("Incorrect!");
-				System.out.println(question.getFeedbackText());
+				System.out.println(question.getFeedback());
 			}
+			System.out.println();
 		}
 	}
 	

@@ -1,71 +1,97 @@
-package HonorsThesis;
+package honorsThesis;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 
 public class QuizParser {
-	private String quizData;
-	private String questionTextLabel = "(Q%d)";
-	private String answerTextLabel = "(A%d)";
-	private String feedbackTextLabel = "(F%d)";
+	private ArrayList<String> quizTokens;
+	private String descriptionLabelFormat;
+	private String answerLabelFormat;
+	private String feedbackLabelFormat;
+	private boolean isInErrorState;
 	
-	public static Quiz parseQuiz(String quizData) {
-		return new QuizParser(quizData).parseQuiz();
+	public static Quiz tryToParseQuiz(String quizData) {
+		QuizParser quizParser = new QuizParser();
+		quizParser.quizTokens = new ArrayList<String>(Arrays.asList(quizData.split("\\s+")));
+		quizParser.descriptionLabelFormat = "(Q%d)";
+		quizParser.answerLabelFormat = "(A%d)";
+		quizParser.feedbackLabelFormat = "(F%d)";
+		quizParser.isInErrorState = false;
+		return quizParser.parseQuiz();
 	}
 	
-	private QuizParser(String quizData) {
-		this.quizData = quizData;
+	private QuizParser() {
+		quizTokens = null;
+		descriptionLabelFormat = null;
+		answerLabelFormat = null;
+		feedbackLabelFormat = null;
 	}
-		
+	
+	private String getToken() {
+		return quizTokens.remove(0);
+	}
+	
+	private void ungetToken(String token) {
+		quizTokens.add(0, token);
+	}
+	
+	private boolean outOfTokens() {
+		return quizTokens.isEmpty();
+	}
+	
 	private Quiz parseQuiz() {
 		return new Quiz(parseQuestions());
 	}
 	
 	private ArrayList<Question> parseQuestions() {
-		int questionLabel = 1;
 		ArrayList<Question> questions = new ArrayList<Question>();
-		Question question = parseQuestion(questionLabel);
-		while (question != null) { // parse questions until we can't find any more
-			questions.add(question);
-			questionLabel++;
-			question = parseQuestion(questionLabel);
+		int questionNumber = 1;
+		while (!quizTokens.isEmpty()) {
+			questions.add(parseQuestion(questionNumber));
+			questionNumber++;
 		}
+		if (isInErrorState) questions.clear();
 		return questions;
 	}
 	
-	private Question parseQuestion(int questionLabel) {
-		Question question = null;
-		if (quizData.contains(String.format(questionTextLabel, questionLabel)) ) { // check if the question exists
-			ArrayList<String> textLabels = getTextLabels(questionLabel);
-			ArrayList<String> texts = getTexts(textLabels);
-			question = new Question(texts.get(0), texts.get(1), texts.get(2));
-		}
+	private Question parseQuestion(int questionNumber) {
+		Question question = new Question();
+		String descriptionLabel = String.format(descriptionLabelFormat, questionNumber);
+		String answerLabel = String.format(answerLabelFormat, questionNumber);
+		String feedbackLabel = String.format(feedbackLabelFormat, questionNumber);
+		String nextDescriptionLabel = String.format(descriptionLabelFormat, questionNumber + 1);
+		question.setDescription(parseTextBetween(descriptionLabel, answerLabel));
+		question.setAnswer(parseTextBetween(answerLabel, feedbackLabel));
+		question.setFeedback(parseTextBetween(feedbackLabel, nextDescriptionLabel));
 		return question;
 	}
 	
-	private ArrayList<String> getTextLabels(int questionLabel) {
-		ArrayList<String> textLabels = new ArrayList<String>(); 
-		textLabels.add(String.format(questionTextLabel, questionLabel)); // put the labels for the current question into a list
-		textLabels.add(String.format(answerTextLabel, questionLabel));
-		textLabels.add(String.format(feedbackTextLabel, questionLabel));
-		textLabels.add(String.format(questionTextLabel, questionLabel + 1)); // put the first label of the next question at the end of the list
-		return textLabels;
-	}
-	
-	private ArrayList<String> getTexts(ArrayList<String> textLabels) {
-		ArrayList<String> texts = new ArrayList<String>(); // extract text for each pair of labels
-		for (int i = 0; i < textLabels.size() - 1; i++) {
-			int textLabelIndex = quizData.indexOf(textLabels.get(i)) + textLabels.get(i).length(); // don't include the label
-			int nextTextLabelIndex = quizData.indexOf(textLabels.get(i + 1));
-			texts.add(determineText(textLabelIndex, nextTextLabelIndex));
-		}
-		return texts;
-	}
-	
-	private String determineText(int textLabelIndex, int nextTextLabelIndex) {
+	private String parseTextBetween(String currentLabel, String nextLabel) { 
 		String text = null;
-		if (nextTextLabelIndex != -1) text = quizData.substring(textLabelIndex, nextTextLabelIndex);
-		else text = quizData.substring(textLabelIndex); // if the next label doesn't exist, assume we've reached the end
-		text = text.trim(); // remove invisible characters
+		if (!isInErrorState) {
+			String token = getToken();
+			if (currentLabel.equals(token)) text = parseTextBetweenUnsafe(currentLabel, nextLabel);
+			else parseTextError(currentLabel, token);
+		}
 		return text;
+	}
+	
+	private String parseTextBetweenUnsafe(String currentLabel, String nextLabel) {
+		StringBuffer textBuffer = new StringBuffer();
+		String token = getToken();
+		while (!token.equals(nextLabel) && !outOfTokens()) {
+			textBuffer.append(token + " ");
+			token = getToken();
+		}
+		if (!outOfTokens()) ungetToken(token);
+		else textBuffer.append(token + " ");
+		textBuffer = textBuffer.deleteCharAt(textBuffer.length() - 1); // delete trailing space
+		return textBuffer.toString();
+	}
+	
+	private void parseTextError(String currentLabel, String token) {
+		System.out.println(String.format("Error while parsing: expected %s, got %s\n", currentLabel, token));
+		isInErrorState = true;
+		quizTokens.clear();
 	}
 }

@@ -1,4 +1,4 @@
-package HonorsThesis;
+package honorsThesis;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -13,13 +13,13 @@ public class QuizClient {
 	
 	private String quizDirectory;
 	private String quizExtension;
-	private String quizSelectionUserPrompt;
+	private String quizNameSelectionPrompt;
 	
 	public static void main(String[] args) {
-		String quizDirectory = "Quizzes";
-		String quizExtension = ".txt";
-		String quizSelectionUserPrompt = "Select a quiz, or type -1 to quit.";
-		QuizClient quizClient = new QuizClient(quizDirectory, quizExtension, quizSelectionUserPrompt);
+		QuizClient quizClient = new QuizClient();
+		quizClient.quizDirectory = "Quizzes";
+		quizClient.quizExtension = ".txt";
+		quizClient.quizNameSelectionPrompt = "Select a quiz, or type -1 to quit.";
 		Boolean quizTakenSuccessfully = null;
 		do {
 			quizTakenSuccessfully = quizClient.promptUserToTakeQuiz();
@@ -35,8 +35,7 @@ public class QuizClient {
 		try {
 			integer = Integer.parseInt(userInput.next());
 			if (!bounded(min, max, integer)) integer = null;
-		} 
-		catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			integer = null;
 		}
 		return integer;
@@ -53,30 +52,28 @@ public class QuizClient {
 		try (Stream<Path> filepaths = Files.walk(path)) {
 			Consumer<Path> addToSubpathFilenames = subpath -> filenames.add(getFilename(subpath));
 			filepaths.filter(Files::isRegularFile).forEach(addToSubpathFilenames);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return filenames;
 	}
 	
-	private QuizClient(String quizDirectory, String quizExtension, String quizSelectionUserPrompt) {
-		this.quizDirectory = quizDirectory;
-		this.quizExtension = quizExtension;
-		this.quizSelectionUserPrompt = quizSelectionUserPrompt;
+	private QuizClient() {
+		quizDirectory = null;
+		quizExtension = null;
+		quizNameSelectionPrompt = null;
 	}
 	
 	private boolean promptUserToTakeQuiz() {
 		Boolean quizTakenSuccessfully = null;
 		try {
-			String quizLabel = promptUserForQuizLabel();
-			if (quizLabel != null) {
-				String quizData = Files.readString(Path.of(String.format("%s/%s%s", quizDirectory, quizLabel, quizExtension)));
-				Quiz quiz = QuizParser.parseQuiz(quizData);
+			String quizName = promptUserForQuizName();
+			if (quizName != null) {
+				String quizData = Files.readString(Path.of(String.format("%s/%s%s", quizDirectory, quizName, quizExtension)));
+				Quiz quiz = QuizParser.tryToParseQuiz(quizData);
 				quiz.takeQuiz(userInput);
 				quizTakenSuccessfully = true;
-			}
-			else quizTakenSuccessfully = false;
+			} else quizTakenSuccessfully = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 			quizTakenSuccessfully = false;
@@ -84,13 +81,13 @@ public class QuizClient {
 		return quizTakenSuccessfully;
 	}
 	
-	private String promptUserForQuizLabel() {
-		String quizLabel = null;
-		ArrayList<String> quizLabels = getFilenames(Path.of(quizDirectory));
-		System.out.println(quizSelectionUserPrompt);
-		for (int i = 0; i < quizLabels.size(); i++) System.out.println(String.format("%d. %s", i, quizLabels.get(i)));
-		Integer quizLabelIndex = promptUserForInteger(0, quizLabels.size() - 1);
-		if (quizLabelIndex != null) quizLabel = quizLabels.get(quizLabelIndex);
-		return quizLabel;
+	private String promptUserForQuizName() {
+		String selectedQuizName = null;
+		ArrayList<String> quizNames = getFilenames(Path.of(quizDirectory));
+		System.out.println(quizNameSelectionPrompt);
+		for (int i = 0; i < quizNames.size(); i++) System.out.println(String.format("%d. %s", i, quizNames.get(i)));
+		Integer quizIndex = promptUserForInteger(0, quizNames.size() - 1);
+		if (quizIndex != null) selectedQuizName = quizNames.get(quizIndex);
+		return selectedQuizName;
 	}
 }

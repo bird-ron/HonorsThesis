@@ -1,30 +1,42 @@
-package HonorsThesis;
+package honorsThesis;
 
 public class Question {
-	private String questionText;
-	private String answerText;
-	private String feedbackText;
+	private String description;
+	private String answer;
+	private String feedback;
 	
-	public Question(String questionText, String answerText, String feedbackText) {
-		this.questionText = questionText;
-		this.answerText = answerText;
-		this.feedbackText = feedbackText;
+	public Question() {
+		this.description = null;
+		this.answer = null;
+		this.feedback = null;
 	}
 	
-	public String getQuestionText() {
-		return questionText;
+	public String getDescription() {
+		return description;
 	}
 	
-	public String getAnswerText() {
-		return answerText;
+	public String getAnswer() {
+		return answer;
 	}
 	
-	public String getFeedbackText() {
-		return feedbackText;
+	public String getFeedback() {
+		return feedback;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+	
+	public void setFeedback(String feedback) {
+		this.feedback = feedback;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("questionText = %s\nanswerText = %s\nfeedbackText = %s\n", questionText, answerText, feedbackText);
+		return String.format("description = %s\nanswer = %s\nfeedback = %s\n", description, answer, feedback);
 	}
 }
