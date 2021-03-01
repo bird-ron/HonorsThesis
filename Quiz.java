@@ -14,7 +14,7 @@ public class Quiz {
 		for (int i = 0; i < questions.size(); i++) {
 			Question question = questions.get(i);
 			System.out.println(question.getDescription());
-			String response = userInput.next().trim();
+			String response = userInput.nextLine().trim();
 			if (response.equalsIgnoreCase(question.getAnswer())) System.out.println("Correct!");
 			else {
 				System.out.println("Incorrect!");

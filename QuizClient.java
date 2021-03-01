@@ -33,7 +33,7 @@ public class QuizClient {
 	private static Integer promptUserForInteger(int min, int max) {
 		Integer integer = null;
 		try {
-			integer = Integer.parseInt(userInput.next());
+			integer = Integer.parseInt(userInput.nextLine());
 			if (!bounded(min, max, integer)) integer = null;
 		} catch (NumberFormatException e) {
 			integer = null;

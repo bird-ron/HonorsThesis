@@ -5,38 +5,39 @@ import java.util.ArrayList;
 
 public class QuizParser {
 	private ArrayList<String> quizTokens;
-	private String descriptionLabelFormat;
-	private String answerLabelFormat;
-	private String feedbackLabelFormat;
+	private ArrayList<String> descriptionLabels;
+	private ArrayList<String> answerLabels;
+	private ArrayList<String> feedbackLabels;
 	private boolean isInErrorState;
-	
+
 	public static Quiz tryToParseQuiz(String quizData) {
 		QuizParser quizParser = new QuizParser();
 		quizParser.quizTokens = new ArrayList<String>(Arrays.asList(quizData.split("\\s+")));
-		quizParser.descriptionLabelFormat = "(Q%d)";
-		quizParser.answerLabelFormat = "(A%d)";
-		quizParser.feedbackLabelFormat = "(F%d)";
+		quizParser.descriptionLabels = new ArrayList<String>(Arrays.asList("<description>", "<desc>", "<d>"));
+		quizParser.answerLabels = new ArrayList<String>(Arrays.asList("<answer>", "<ans>", "<a>"));
+		quizParser.feedbackLabels = new ArrayList<String>(Arrays.asList("<feedback>", "<fdbk>", "<f>"));
 		quizParser.isInErrorState = false;
 		return quizParser.parseQuiz();
 	}
 	
 	private QuizParser() {
 		quizTokens = null;
-		descriptionLabelFormat = null;
-		answerLabelFormat = null;
-		feedbackLabelFormat = null;
+		descriptionLabels = null;
+		answerLabels = null;
+		feedbackLabels = null;
+		isInErrorState = false;
 	}
 	
 	private String getToken() {
-		return quizTokens.remove(0);
+		try {
+			return quizTokens.remove(0);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 	
 	private void ungetToken(String token) {
 		quizTokens.add(0, token);
-	}
-	
-	private boolean outOfTokens() {
-		return quizTokens.isEmpty();
 	}
 	
 	private Quiz parseQuiz() {
@@ -45,52 +46,44 @@ public class QuizParser {
 	
 	private ArrayList<Question> parseQuestions() {
 		ArrayList<Question> questions = new ArrayList<Question>();
-		int questionNumber = 1;
-		while (!quizTokens.isEmpty()) {
-			questions.add(parseQuestion(questionNumber));
-			questionNumber++;
-		}
+		while (!quizTokens.isEmpty()) questions.add(parseQuestion());
 		if (isInErrorState) questions.clear();
 		return questions;
 	}
 	
-	private Question parseQuestion(int questionNumber) {
+	private Question parseQuestion() {
 		Question question = new Question();
-		String descriptionLabel = String.format(descriptionLabelFormat, questionNumber);
-		String answerLabel = String.format(answerLabelFormat, questionNumber);
-		String feedbackLabel = String.format(feedbackLabelFormat, questionNumber);
-		String nextDescriptionLabel = String.format(descriptionLabelFormat, questionNumber + 1);
-		question.setDescription(parseTextBetween(descriptionLabel, answerLabel));
-		question.setAnswer(parseTextBetween(answerLabel, feedbackLabel));
-		question.setFeedback(parseTextBetween(feedbackLabel, nextDescriptionLabel));
+		question.setDescription(parseTextBetween(descriptionLabels, answerLabels));
+		question.setAnswer(parseTextBetween(answerLabels, feedbackLabels));
+		question.setFeedback(parseTextBetween(feedbackLabels, descriptionLabels));
 		return question;
 	}
 	
-	private String parseTextBetween(String currentLabel, String nextLabel) { 
+	private String parseTextBetween(ArrayList<String> startTokens, ArrayList<String> endTokens) { 
 		String text = null;
-		if (!isInErrorState) {
-			String token = getToken();
-			if (currentLabel.equals(token)) text = parseTextBetweenUnsafe(currentLabel, nextLabel);
-			else parseTextError(currentLabel, token);
-		}
+		String token = getToken();
+		if (startTokens.contains(token)) text = parseTextLoop(endTokens);
+		else parseTextError(startTokens, token);
 		return text;
 	}
 	
-	private String parseTextBetweenUnsafe(String currentLabel, String nextLabel) {
+	private String parseTextLoop(ArrayList<String> endTokens) {
 		StringBuffer textBuffer = new StringBuffer();
 		String token = getToken();
-		while (!token.equals(nextLabel) && !outOfTokens()) {
-			textBuffer.append(token + " ");
+		String delimiter = " ";
+		while (!endTokens.contains(token) && token != null) {
+			textBuffer.append(token + delimiter);
 			token = getToken();
 		}
-		if (!outOfTokens()) ungetToken(token);
+		if (token != null) ungetToken(token);
 		else textBuffer.append(token + " ");
-		textBuffer = textBuffer.deleteCharAt(textBuffer.length() - 1); // delete trailing space
+		textBuffer = textBuffer.delete(textBuffer.length() - delimiter.length(), textBuffer.length());
 		return textBuffer.toString();
 	}
 	
-	private void parseTextError(String currentLabel, String token) {
-		System.out.println(String.format("Error while parsing: expected %s, got %s\n", currentLabel, token));
+	private void parseTextError(ArrayList<String> startTokens, String token) {
+		String startTokensString = String.join(", ", startTokens);
+		System.out.println(String.format("Error while parsing: expected %s, got %s", startTokensString, token));
 		isInErrorState = true;
 		quizTokens.clear();
 	}
