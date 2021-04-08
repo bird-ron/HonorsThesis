@@ -44,11 +44,11 @@ public class QuizParser {
 		return new Quiz(parseQuestions());
 	}
 	
-	private ArrayList<Question> parseQuestions() {
+	private Question[] parseQuestions() {
 		ArrayList<Question> questions = new ArrayList<Question>();
 		while (!quizTokens.isEmpty()) questions.add(parseQuestion());
 		if (isInErrorState) questions.clear();
-		return questions;
+		return (Question[]) questions.toArray();
 	}
 	
 	private Question parseQuestion() {
