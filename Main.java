@@ -1,14 +1,15 @@
 package honorsThesis;
 
+import static honorsThesis.QuizClient.promptUserToTakeQuiz;
+
 public class Main
 {
 	public static void main(String[] args)
 	{
-		QuizClient quizClient = new QuizClient();
 		Boolean quizTakenSuccessfully = null;
 		do 
 		{
-			quizTakenSuccessfully = quizClient.promptUserToTakeQuiz();
+			quizTakenSuccessfully = promptUserToTakeQuiz();
 		} 
 		while (quizTakenSuccessfully);
 	}

@@ -7,9 +7,9 @@ public class UserIO
 {
 	private static Scanner userInput = new Scanner(System.in);
 	
-	public static void print(String string) 
+	public static void print(Object object)
 	{
-		System.out.println(string);
+		System.out.println(object);
 	}
 	
 	public static void print()

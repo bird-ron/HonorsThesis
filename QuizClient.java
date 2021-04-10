@@ -1,7 +1,9 @@
 package honorsThesis;
 
-import java.util.ArrayList;
 import static honorsThesis.UserIO.print;
+import static honorsThesis.Util.newline;
+import static honorsThesis.Util.emptyString;
+import static honorsThesis.Util.whitespaceRegex;
 
 public class QuizClient 
 {
@@ -11,62 +13,33 @@ public class QuizClient
 	private static String correctMessage = "Correct!";
 	private static String incorrectMessage = "Incorrect.";
 
-	
-	public boolean promptUserToTakeQuiz() 
+	public static boolean promptUserToTakeQuiz() 
 	{
-		Boolean quizTakenSuccessfully = null;
-		ArrayList<String> quizNames = FileIO.findFileNames(quizFolder, quizFileExt);
-		String quizSelectionMessage = findQuizSelectionMessage(quizNames);
-		Integer quizIndex = UserIO.promptUserForIntegerIncl(0, quizNames.size() - 1, quizSelectionMessage);
-		if (quizIndex != null) 
+		String quizName = promptUserForQuizName();
+		boolean selectionIsValid = quizName != null;
+		if (selectionIsValid)
 		{
-			String quizName = quizNames.get(quizIndex);
-			String quizPath = String.format("%s/%s%s", quizFolder, quizName, quizFileExt);
-			String quizData = FileIO.findFileContents(quizPath);
-			Quiz quiz = QuizParser.tryToParseQuiz(quizData);
-			if (quiz != null)
-			{
-				takeQuiz(quiz);
-				quizTakenSuccessfully = true;
-			}
-			else quizTakenSuccessfully = false;			
+			String quizPath = String.format("%s/%s", quizFolder, quizName);
+			Quiz quiz = QuizParser.parseQuiz(quizPath);
+			takeQuiz(quiz);	
 		}
-		else 
-		{
-			quizTakenSuccessfully = false;
-		}
-		return quizTakenSuccessfully;
-	}
-	
-	private static String findQuizSelectionMessage(ArrayList<String> quizNames) 
-	{
-		String quizSelectionMessage = quizSelectionMessageHeader + "\n";
-		for (int i = 0; i < quizNames.size(); i++) 
-		{
-			String labeledQuizName = String.format("%d. %s", i, quizNames.get(i));
-			quizSelectionMessage += labeledQuizName + "\n";
-		}
-		return quizSelectionMessage;
+		return selectionIsValid;
 	}
 	
 	private static void takeQuiz(Quiz quiz)
 	{
-		Question[] questions = quiz.getQuestions();
-		for (int i = 0; i < questions.length; i++) 
+		for (int i = 0; i < quiz.length; i++) 
 		{
-			Question question = questions[i];
-			String description = question.getDescription();
-			String answer = question.getAnswer();
-			String feedback = question.getFeedback();
-			String userResponse = UserIO.promptUserForString(description);
-			checkAndPrint(answer, userResponse, feedback);
+			Question question = quiz.getQuestion(i);
+			String response = UserIO.promptUserForString(question.description);
+			checkAndPrint(question.answer, response, question.feedback);
 		}	
 	}
 
-	private static void checkAndPrint(String answer, String userResponse, String feedback)
+	private static void checkAndPrint(String answer, String response, String feedback)
 	{
-		boolean userResponseIsCorrect = checkResponse(answer, userResponse);
-		if (userResponseIsCorrect)
+		boolean isCorrect = checkResponse(answer, response);
+		if (isCorrect)
 		{
 			print(correctMessage);
 		}
@@ -75,11 +48,42 @@ public class QuizClient
 			print(incorrectMessage);
 			print(feedback);
 		}
-		print();
 	}
 	
-	private static boolean checkResponse(String answer, String userResponse)
+	private static boolean checkResponse(String answer, String response)
 	{
-		return answer.equalsIgnoreCase(userResponse);
+		String sanitizedAnswer = sanitizeString(answer);
+		String sanitizedResponse = sanitizeString(response);
+		return sanitizedAnswer.equals(sanitizedResponse);
+	}
+	
+	private static String sanitizeString(String string)
+	{
+		String sanitizedString = string.toLowerCase().replaceAll(whitespaceRegex, emptyString);
+		return sanitizedString;
+	}
+	
+	private static String promptUserForQuizName()
+	{
+		String[] quizNames = FileIO.findFilenames(quizFolder, quizFileExt);
+		String quizSelectionMessage = findQuizSelectionMessage(quizNames);
+		Integer quizIndex = UserIO.promptUserForIntegerIncl(0, quizNames.length - 1, quizSelectionMessage);
+		String quizName = null;
+		if (quizIndex != null)
+		{
+			quizName = quizNames[quizIndex];
+		}
+		return quizName;
+	}
+	
+	private static String findQuizSelectionMessage(String[] quizNames)
+	{
+		String quizSelectionMessage = quizSelectionMessageHeader + newline;
+		for (int i = 0; i < quizNames.length; i++) 
+		{
+			String labeledQuizName = String.format("%d. %s", i, quizNames[i]);
+			quizSelectionMessage += labeledQuizName + newline;
+		}
+		return quizSelectionMessage;
 	}
 }

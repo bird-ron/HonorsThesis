@@ -1,14 +1,12 @@
 package honorsThesis;
 
-import java.util.ArrayList;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import static honorsThesis.QuizClient.quizFolder;
 import static honorsThesis.QuizClient.quizFileExt;
 import static honorsThesis.FileIO.findFilePaths;
-import static honorsThesis.FileIO.findFileNames;
-import static honorsThesis.FileIO.findFileContents;
+import static honorsThesis.FileIO.findFilenames;
 import static honorsThesis.UserIO.print;
 
 public class FileIOTests
@@ -49,7 +47,7 @@ public class FileIOTests
 	@SuppressWarnings("unused")
 	private static void checkQuizFileNames() throws IOException
 	{
-		ArrayList<String> filenames = findFileNames(quizFolder, quizFileExt);
+		String[] filenames = findFilenames(quizFolder, quizFileExt);
 		for (String filename : filenames)
 		{
 			print(filename);
@@ -59,21 +57,10 @@ public class FileIOTests
 	@SuppressWarnings("unused")
 	private static void checkQuizPaths() throws IOException
 	{
-		ArrayList<String> filepaths = findFilePaths(quizFolder, quizFileExt);
+		String[] filepaths = findFilePaths(quizFolder, quizFileExt);
 		for (String filepath : filepaths)
 		{
 			print(filepath);
 		}
 	}
-	
-	@SuppressWarnings("unused")
-	private static void checkQuizContents() throws IOException
-	{
-		ArrayList<String> filepaths = findFilePaths(quizFolder, quizFileExt);
-		for (String filepath : filepaths)
-		{
-			print(findFileContents(filepath));
-		}
-	}
-	
 }

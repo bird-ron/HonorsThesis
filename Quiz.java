@@ -2,15 +2,17 @@ package honorsThesis;
 
 public class Quiz 
 {
-	private Question[] questions;
+	private final Question[] questions;
+	public final int length;
 	
 	public Quiz(Question[] questions)
 	{
 		this.questions = questions;
+		this.length = questions.length;
 	}
 	
-	public Question[] getQuestions() 
+	public Question getQuestion(int index)
 	{
-		return this.questions;
+		return this.questions[index];
 	}
 }
