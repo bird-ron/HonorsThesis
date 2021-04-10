@@ -19,11 +19,27 @@ public class QuizClient
 		boolean selectionIsValid = quizName != null;
 		if (selectionIsValid)
 		{
-			String quizPath = String.format("%s/%s", quizFolder, quizName);
-			Quiz quiz = QuizParser.parseQuiz(quizPath);
-			takeQuiz(quiz);	
+			parseAndTake(quizName);
 		}
 		return selectionIsValid;
+	}
+	
+	private static void parseAndTake(String quizName)
+	{
+		try
+		{
+			String quizPath = String.format("%s/%s", quizFolder, quizName);
+			Quiz quiz = QuizParser.parseFromPath(quizPath);
+			takeQuiz(quiz);	
+		}
+		catch (UnexpectedTokenException quizParseException)
+		{
+			print(quizParseException + newline);
+		}
+		catch (EOFNotAllowedException eofNotAllowedException)
+		{
+			print(eofNotAllowedException + newline);
+		}
 	}
 	
 	private static void takeQuiz(Quiz quiz)
@@ -46,8 +62,12 @@ public class QuizClient
 		else 
 		{
 			print(incorrectMessage);
-			print(feedback);
+			if (feedback != null)
+			{
+				print(feedback);
+			}
 		}
+		print();
 	}
 	
 	private static boolean checkResponse(String answer, String response)

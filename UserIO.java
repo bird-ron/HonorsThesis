@@ -56,7 +56,7 @@ public class UserIO
 		try 
 		{
 			integer = Integer.parseInt(userInput.nextLine());
-			if (!boundingFunction.call(min, max, integer))
+			if (!boundingFunction.call(integer, min, max))
 			{
 				integer = null;
 			}

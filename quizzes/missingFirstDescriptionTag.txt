@@ -1,0 +1,8 @@
+What is zero plus zero?
+<a> 0
+
+<d> What is one plus one?
+<a> 2
+
+<d> What is two plus two?
+<a> 4
