@@ -1,3 +1,0 @@
-<d> What is 3 + 3?
-<a> 6
-<f> Math is easy

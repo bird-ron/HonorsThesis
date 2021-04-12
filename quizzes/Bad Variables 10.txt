@@ -1,0 +1,7 @@
+<m> immediate
+
+<v> 
+5 = x to 10
+3 = y to 6
+<d> What is x + y ?
+<a> x + y

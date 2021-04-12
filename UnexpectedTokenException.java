@@ -1,24 +1,40 @@
 package honorsThesis;
 
-import static honorsThesis.Util.arrayToTupleString;
+import java.util.List;
+import static honorsThesis.Token.nullToken;
 
 public class UnexpectedTokenException extends Exception
 {
 	private static final long serialVersionUID = 3927360262055725741L;
-	private static final String errorTemplate = "Parsing error on line %d, column %d: expected %s, got %s";
-	private final String expectedLexemesTupleString;
-	private final Token badToken;
+	private final String errorTemplate = "Parsing error on line %d, column %d: expected %s, got %s";
+	private final String nullErrorTemplate = "Parsing error: expected %s, got end of file";
+	private final String expected;
+	private final Token token;
 	
-	public UnexpectedTokenException(String[] expectedLexemes, Token badToken)
+	public UnexpectedTokenException(List<String> expected, Token token)
 	{
-		this.expectedLexemesTupleString = arrayToTupleString(expectedLexemes);
-		this.badToken = badToken;
+		this.expected = expected.toString();
+		this.token = token;
+	}
+	
+	public UnexpectedTokenException(String expected, Token token)
+	{
+		this.expected = expected;
+		this.token = token;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return errorTemplate.formatted(this.badToken.lineNumber, this.badToken.columnNumber, this.expectedLexemesTupleString, 
-				this.badToken.lexeme);
+		String returnString = null;
+		if (token != nullToken)
+		{
+			returnString = errorTemplate.formatted(token.lineNumber, token.columnNumber, expected, token.lexeme);
+		}
+		else
+		{
+			returnString = nullErrorTemplate.formatted(expected);
+		}
+		return returnString;
 	}
 }

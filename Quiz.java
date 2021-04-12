@@ -1,18 +1,16 @@
 package honorsThesis;
 
+import java.util.List;
+import static java.util.Collections.unmodifiableList;
+
 public class Quiz 
 {
-	private final Question[] questions;
-	public final int length;
+	public final boolean feedbackIsImmediate;
+	public final List<Question> questions;
 	
-	public Quiz(Question[] questions)
+	public Quiz(boolean feedbackIsImmediate, List<Question> questions)
 	{
-		this.questions = questions;
-		this.length = questions.length;
-	}
-	
-	public Question getQuestion(int index)
-	{
-		return this.questions[index];
+		this.feedbackIsImmediate = feedbackIsImmediate;
+		this.questions = unmodifiableList(questions);
 	}
 }

@@ -1,8 +1,10 @@
-<d> What is zero plus zero?
-<a> 0
+<m> delayed
 
 <d> What is one plus one?
 2
 
 <d> What is two plus two?
 <a> 4
+
+<d> What is three plus three?
+<a> 6

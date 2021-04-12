@@ -17,17 +17,6 @@ public class UserIO
 		System.out.println();
 	}
 	
-	public static String promptUserForString(String message)
-	{
-		print(message);
-		return promptUserForString();
-	}
-	
-	private static String promptUserForString()
-	{
-		return userInput.nextLine().trim();
-	}
-	
 	public static Integer promptUserForIntegerIncl(int min, int max, String message) 
 	{
 		print(message);
@@ -66,5 +55,20 @@ public class UserIO
 			integer = null;
 		}
 		return integer;
+	}
+	
+	public static Double promptUserForDouble(String message)
+	{
+		print(message);
+		Double myDouble = null;
+		try 
+		{
+			myDouble = Double.parseDouble(userInput.nextLine());
+		} 
+		catch (NumberFormatException e) 
+		{
+			myDouble = null;
+		}
+		return myDouble;
 	}
 }

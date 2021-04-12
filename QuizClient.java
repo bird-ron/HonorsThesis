@@ -1,9 +1,13 @@
 package honorsThesis;
 
+import java.util.List;
+import static honorsThesis.FileIO.findFilenames;
 import static honorsThesis.UserIO.print;
+import static honorsThesis.UserIO.promptUserForDouble;
+import static honorsThesis.UserIO.promptUserForIntegerIncl;
 import static honorsThesis.Util.newline;
 import static honorsThesis.Util.emptyString;
-import static honorsThesis.Util.whitespaceRegex;
+import static honorsThesis.Util.closeEnough;
 
 public class QuizClient 
 {
@@ -29,79 +33,70 @@ public class QuizClient
 		try
 		{
 			String quizPath = String.format("%s/%s", quizFolder, quizName);
-			Quiz quiz = QuizParser.parseFromPath(quizPath);
+			Quiz quiz = QuizParser.parse(quizPath);
 			takeQuiz(quiz);	
 		}
 		catch (UnexpectedTokenException quizParseException)
 		{
 			print(quizParseException + newline);
 		}
-		catch (EOFNotAllowedException eofNotAllowedException)
-		{
-			print(eofNotAllowedException + newline);
-		}
 	}
 	
 	private static void takeQuiz(Quiz quiz)
 	{
-		for (int i = 0; i < quiz.length; i++) 
+		String messageBuffer = emptyString;
+		for (int i = 0; i < quiz.questions.size(); i++)
 		{
-			Question question = quiz.getQuestion(i);
-			String response = UserIO.promptUserForString(question.description);
-			checkAndPrint(question.answer, response, question.feedback);
-		}	
-	}
-
-	private static void checkAndPrint(String answer, String response, String feedback)
-	{
-		boolean isCorrect = checkResponse(answer, response);
-		if (isCorrect)
-		{
-			print(correctMessage);
-		}
-		else 
-		{
-			print(incorrectMessage);
-			if (feedback != null)
+			Question question = quiz.questions.get(i);
+			Double response = promptUserForDouble(question.description);
+			if (closeEnough(question.answer, response))
 			{
-				print(feedback);
+				messageBuffer += (i + 1) + ". " + correctMessage + "\n";
+			}
+			else 
+			{
+				messageBuffer += (i + 1) + ". " + incorrectMessage + "\n";
+				if (question.feedback != null)
+				{
+					messageBuffer += question.feedback + "\n";
+				}
+			}
+			if (quiz.feedbackIsImmediate)
+			{
+				print(messageBuffer);
+				messageBuffer = emptyString;
+			}
+			else
+			{
+				print();
 			}
 		}
-		print();
-	}
-	
-	private static boolean checkResponse(String answer, String response)
-	{
-		String sanitizedAnswer = sanitizeString(answer);
-		String sanitizedResponse = sanitizeString(response);
-		return sanitizedAnswer.equals(sanitizedResponse);
-	}
-	
-	private static String sanitizeString(String string)
-	{
-		String sanitizedString = string.toLowerCase().replaceAll(whitespaceRegex, emptyString);
-		return sanitizedString;
+		if (!messageBuffer.isEmpty())
+		{
+			print(messageBuffer);
+		}
 	}
 	
 	private static String promptUserForQuizName()
 	{
-		String[] quizNames = FileIO.findFilenames(quizFolder, quizFileExt);
+		List<String> quizNames = findFilenames(quizFolder, quizFileExt);
 		String quizSelectionMessage = findQuizSelectionMessage(quizNames);
-		Integer quizIndex = UserIO.promptUserForIntegerIncl(0, quizNames.length - 1, quizSelectionMessage);
+		Integer quizIndex = promptUserForIntegerIncl(0, quizNames.size() - 1, quizSelectionMessage);
 		String quizName = null;
 		if (quizIndex != null)
 		{
-			quizName = quizNames[quizIndex];
+			quizName = quizNames.get(quizIndex);
 		}
 		return quizName;
 	}
 	
-	private static String findQuizSelectionMessage(String[] quizNames)
+	private static String findQuizSelectionMessage(List<String> quizNames)
 	{
 		String quizSelectionMessage = quizSelectionMessageHeader + newline;
-		for (int i = 0; i < quizNames.length; i++) 
+		int quizNameCount = quizNames.size();
+		for (int i = 0; i < quizNameCount; i++) 
 		{
-			String labeledQuizName = String.format("%d. %s", i, quizNames[i]);
+			String labeledQuizName = String.format("%d. %s", i, quizNames.get(i));
 			quizSelectionMessage += labeledQuizName + newline;
 		}
 		return quizSelectionMessage;

@@ -1,5 +1,6 @@
 package honorsThesis;
 
+import java.util.List;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +48,7 @@ public class FileIOTests
 	@SuppressWarnings("unused")
 	private static void checkQuizFileNames() throws IOException
 	{
-		String[] filenames = findFilenames(quizFolder, quizFileExt);
+		List<String> filenames = findFilenames(quizFolder, quizFileExt);
 		for (String filename : filenames)
 		{
 			print(filename);
@@ -57,7 +58,7 @@ public class FileIOTests
 	@SuppressWarnings("unused")
 	private static void checkQuizPaths() throws IOException
 	{
-		String[] filepaths = findFilePaths(quizFolder, quizFileExt);
+		List<String> filepaths = findFilePaths(quizFolder, quizFileExt);
 		for (String filepath : filepaths)
 		{
 			print(filepath);

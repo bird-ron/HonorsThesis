@@ -1,0 +1,8 @@
+<m> immediate
+
+<v> 
+x = 5 to 10
+y = 3 to 6
+z = 6 to 9
+<d> What is x + y ?
+<a> x + y

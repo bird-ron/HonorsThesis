@@ -2,58 +2,54 @@ package honorsThesis;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.ArrayList;
+import static java.util.Collections.unmodifiableList;
 import static honorsThesis.Util.backslash;
 import static honorsThesis.Util.emptyString;
 
 public class FileIO 
 {
-	public static String[] findFilePaths(String folder, String extension)
+	public static List<String> findFilePaths(String folder, String extension)
 	{
 		return findFilenames(folder, extension, folder + backslash);
 	}
 	
-	public static String[] findFilenames(String folder, String extension)
+	public static List<String> findFilenames(String folder, String extension)
 	{
 		return findFilenames(folder, extension, emptyString);
 	}
 	
-	public static String[] findFilenames(String folder, String extension, String prefix)
+	public static List<String> findFilenames(String folder, String extension, String prefix)
 	{
 		File fileFolder = new File(folder);
 		File[] files = fileFolder.listFiles();
-		ArrayList<String> filenameList = new ArrayList<String>();
+		List<String> filenames = new ArrayList<String>();
 		for (int i = 0; i < files.length; i++) 
 		{
-			File file = files[i];
-			String filename = prefix + file.getName();
+			String filename = prefix + files[i].getName();
 			if (filename.endsWith(extension))
 			{
-				filenameList.add(filename);
+				filenames.add(filename);
 			}
 		}
-		int filenameCount = filenameList.size();
-		String[] filenames = filenameList.toArray(new String[filenameCount]);
-		return filenames;
+		return unmodifiableList(filenames);
 	}
 	
-	public static String[] findLines(String pathString)
+	public static List<String> findLines(String pathString)
 	{
-		String[] lines;
+		List<String> lines;
 		Path path = Path.of(pathString);
 		try 
 		{
-			List<String> linesList = Files.readAllLines(path);
-			int lineCount = linesList.size();
-			lines = linesList.toArray(new String[lineCount]);
+			lines = Files.readAllLines(path);
 		}
 		catch (IOException ioException)
 		{
 			lines = null;
 		}
-		return lines;
+		return unmodifiableList(lines);
 	}
 }

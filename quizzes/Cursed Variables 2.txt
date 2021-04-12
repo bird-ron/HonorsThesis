@@ -1,0 +1,7 @@
+<m> immediate
+
+<v> 
+5 = 4 to 10
+3 = 2 to 6
+<d> What is 5 + 3 + 7 + 5 ?
+<a> 5 + 3 + 7 + 5

@@ -1,8 +1,10 @@
-<d> What is zero plus zero?
-<a> 0
+<m> immediate
 
 <d> What is one plus one?
 <a> 2
 
 What is two plus two?
 <a> 4
+
+<d> What is three plus three?
+<a> 6

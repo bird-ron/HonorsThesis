@@ -1,0 +1,13 @@
+<m> delayed
+
+<d> What is one plus one?
+<a> 2
+<f> One plus one is two.
+
+<d> What is two plus two?
+<a> 4
+<f> Two plus two is four.
+
+<d> What is three plus three?
+<a> 6
+<f> Three plus three is six.

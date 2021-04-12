@@ -2,11 +2,12 @@ package honorsThesis;
 
 public class Token 
 {
+	public static final Token nullToken = new Token("end of file", null, null);
 	public final String lexeme;
-	public final int columnNumber;
-	public final int lineNumber;
+	public final Integer columnNumber;
+	public final Integer lineNumber;
 	
-	public Token(String lexeme, int columnNumber, int lineNumber)
+	public Token(String lexeme, Integer columnNumber, Integer lineNumber)
 	{
 		this.lexeme = lexeme;
 		this.columnNumber = columnNumber;
@@ -16,6 +17,6 @@ public class Token
 	@Override
 	public String toString()
 	{
-		return "(%s, %d, %d)".formatted(this.lexeme, this.columnNumber, this.lineNumber);
+		return lexeme;
 	}
 }

@@ -1,0 +1,10 @@
+<m> immediate
+
+<d> What is one plus one?
+<a> 2
+
+<d> What is two plus two?
+<a> 4
+
+<d> What is three plus three?
+6
